@@ -17,13 +17,13 @@ jobs:
 
       - name: Set bowler-proto to the newly released version
         run: |
-          cd bowler-proto && git checkout ${{ github.event.client_payload.release }} && cd ..
+          cd bowler-proto && git checkout ${{ github.event.client_payload.sha }} && cd ..
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Bump bowler-proto"
-          title: "[AUTO] Bump bowler-proto"
-          body: ${{ format('Updating bowler-proto to {0}.', github.event.client_payload.release) }}
-          branch: ${{ format('update-bowler-proto-{0}', github.event.client_payload.release) }}
+          commit-message:  ${{ format('Bump bowler-proto to {0}.', github.event.client_payload.ref) }}
+          title: ${{ format('[AUTO] Bump bowler-proto to {0}.', github.event.client_payload.ref) }}
+          body: ${{ format('Updating bowler-proto to {0}.', github.event.client_payload.ref) }}
+          branch: ${{ format('update-bowler-proto-{0}', github.event.client_payload.ref) }}
