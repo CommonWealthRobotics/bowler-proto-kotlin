@@ -1,17 +1,15 @@
-import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.google.protobuf.gradle.generateProtoTasks
 import com.google.protobuf.gradle.id
 import com.google.protobuf.gradle.plugins
 import com.google.protobuf.gradle.protobuf
 import com.google.protobuf.gradle.protoc
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
     id("com.diffplug.spotless") version Versions.spotlessPlugin
     kotlin("jvm") version Versions.kotlin
     id("org.jlleitschuh.gradle.ktlint") version Versions.ktlintPlugin
-    id("org.jetbrains.dokka") version Versions.dokkaPlugin
     id("com.jfrog.bintray") version Versions.bintrayPlugin
     `maven-publish`
     java
@@ -31,6 +29,7 @@ dependencies {
     api(group = "io.grpc", name = "grpc-all", version = Versions.grpc)
     api(group = "io.grpc", name = "grpc-kotlin-stub", version = Versions.grpcKotlin)
     api(group = "javax.annotation", name = "javax.annotation-api", version = Versions.javaxAnnotationAPI)
+
     implementation(group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version = Versions.kotlin)
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = Versions.kotlinCoroutines)
 }
@@ -103,7 +102,6 @@ spotless {
     }
 }
 
-
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
@@ -137,21 +135,10 @@ ktlint {
     }
 }
 
-// Need to configure the root project or else the task bintrayUpload will throw a NPE
-configureBintrayPkg(null)
-
 task<Jar>("sourcesJar") {
     archiveClassifier.set("sources")
     archiveBaseName.set(Metadata.projectName)
     from(sourceSets.main.get().allSource)
-}
-
-val dokkaJar by tasks.creating(Jar::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Assembles Kotlin docs with Dokka"
-    archiveClassifier.set("javadoc")
-    archiveBaseName.set(Metadata.projectName)
-    from(tasks.withType<DokkaTask>())
 }
 
 val publicationName = "publication-${Metadata.projectName}-${name.toLowerCase()}"
@@ -166,10 +153,11 @@ publishing {
                 artifact(tasks.named("shadowJar"))
             } catch (ex: UnknownTaskException) {
             }
-            artifact(dokkaJar)
         }
     }
 }
+
+configureBintrayPkg(publicationName)
 
 tasks.wrapper {
     distributionType = Wrapper.DistributionType.ALL
