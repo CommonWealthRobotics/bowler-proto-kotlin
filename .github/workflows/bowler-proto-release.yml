@@ -23,6 +23,7 @@ jobs:
 
       - name: Set bowler-proto to the newly released version
         env:
+          THIS_TAG: ${{ steps.parse-tag.outputs.tag }}
           NEW_TAG: ${{ github.event.client_payload.ref }}
         run: |
           cd bowler-proto
