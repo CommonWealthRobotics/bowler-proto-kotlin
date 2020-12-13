@@ -15,9 +15,20 @@ jobs:
           fetch-depth: 0
           ssh-key: ${{ secrets.BOWLERBOT_SSH_KEY }}
 
-      - name: Set bowler-proto to the newly released version
+      - name: Parse this tag
+        id: parse-tag
         run: |
-          cd bowler-proto && git checkout ${{ github.event.client_payload.sha }} && cd ..
+          THIS_TAG="$(grep 'projectVersion' 'buildSrc/src/main/kotlin/Versions.kt' | awk '{ print $5 }' | tr -d \")"
+          echo "::set-output name=tag::$(echo $THIS_TAG)"
+
+      - name: Set bowler-proto to the newly released version
+        env:
+          NEW_TAG: ${{ github.event.client_payload.ref }}
+        run: |
+          cd bowler-proto
+          git checkout ${{ github.event.client_payload.sha }}
+          cd ..
+          sed -i "/projectVersion = \"$THIS_TAG\"/ s/$THIS_TAG/$NEW_TAG/" buildSrc/src/main/kotlin/Versions.kt
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
