@@ -17,7 +17,7 @@
  * blocks.
  */
 object Versions {
-    const val projectVersion = "0.6.9"
+    const val projectVersion = "0.6.9-1"
 
     const val spotlessPlugin = "5.6.1"
     const val ktlintPlugin = "9.4.1"
@@ -29,7 +29,7 @@ object Versions {
     const val ktlint = "0.39.0"
     const val protobufJava = "3.12.4"
     const val grpc = "1.34.0"
-    const val grpcKotlin = "0.2.1"
+    const val grpcKotlin = "1.0.0"
     const val javaxAnnotationAPI = "1.3.+"
 
     const val gradleWrapper = "6.6.1"
