@@ -197,8 +197,8 @@ publishing {
 }
 
 signing {
-    val signingKey: String? by project
-    val signingPassword: String? by project
+    val signingKey = findProperty("OSSRH_SIGNING_KEY") as String?
+    val signingPassword = findProperty("OSSRH_SIGNING_PASSWORD") as String?
     useInMemoryPgpKeys(signingKey, signingPassword)
     sign(publishing.publications[publicationName])
     sign(configurations.archives.get())
