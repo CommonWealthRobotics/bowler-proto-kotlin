@@ -10,8 +10,8 @@ plugins {
     id("com.diffplug.spotless") version Versions.spotlessPlugin
     kotlin("jvm") version Versions.kotlin
     id("org.jlleitschuh.gradle.ktlint") version Versions.ktlintPlugin
-    id("com.jfrog.bintray") version Versions.bintrayPlugin
     `maven-publish`
+    signing
     java
     id("com.google.protobuf") version Versions.protobufPlugin
 }
@@ -141,7 +141,7 @@ task<Jar>("sourcesJar") {
     from(sourceSets.main.get().allSource)
 }
 
-val publicationName = "publication-${Metadata.projectName}-${name.toLowerCase()}"
+val publicationName = "bowler-proto-kotlin"
 
 publishing {
     publications {
@@ -153,38 +153,55 @@ publishing {
                 artifact(tasks.named("shadowJar"))
             } catch (ex: UnknownTaskException) {
             }
+
+            pom {
+                name.set(Metadata.projectName)
+                description.set(Metadata.projectDescription)
+                url.set(Metadata.githubRepo)
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("rbenasutti")
+                        name.set("Ryan Benasutti")
+                        email.set("ryanbenasutti@gmail.com")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/CommonWealthRobotics/bowler-proto-kotlin.git")
+                    developerConnection.set("scm:git:ssh://github.com/CommonWealthRobotics/bowler-proto-kotlin.git")
+                    url.set(Metadata.githubRepo)
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            val releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            val snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+            credentials {
+                username = findProperty("OSSRH_USERNAME") as String?
+                password = findProperty("OSSRH_PASSWORD") as String?
+            }
         }
     }
 }
 
-configureBintrayPkg(publicationName)
+signing {
+    sign(publishing.publications[publicationName])
+    sign(configurations.archives.get())
+}
 
 tasks.wrapper {
     distributionType = Wrapper.DistributionType.ALL
     gradleVersion = Versions.gradleWrapper
-}
-
-fun Project.configureBintrayPkg(publicationName: String?) {
-    bintray {
-        val bintrayApiUser = properties["bintray.api.user"] ?: System.getenv("BINTRAY_USER")
-        val bintrayApiKey = properties["bintray.api.key"] ?: System.getenv("BINTRAY_API_KEY")
-        user = bintrayApiUser as String?
-        key = bintrayApiKey as String?
-
-        publicationName?.let { setPublications(it) }
-
-        with(pkg) {
-            repo = Metadata.Bintray.repo
-            name = Metadata.projectName
-            userOrg = Metadata.organization
-            publish = true
-            setLicenses(Metadata.license)
-            vcsUrl = Metadata.Bintray.vcsUrl
-            githubRepo = Metadata.Bintray.githubRepo
-            with(version) {
-                name = Versions.projectVersion
-                desc = Metadata.projectDescription
-            }
-        }
-    }
 }

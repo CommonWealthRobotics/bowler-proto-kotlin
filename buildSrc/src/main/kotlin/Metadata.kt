@@ -20,7 +20,9 @@ object Metadata {
     const val projectName = "bowler-proto-kotlin"
     const val projectDescription = "Generated Kotlin code for the bowler-proto protobuf definitions."
     const val organization = "commonwealthrobotics"
+    const val groupId = "com.commonwealthrobotics"
     const val license = "Apache-2.0"
+    const val githubRepo = "https://github.com/CommonWealthRobotics/bowler-proto-kotlin"
 
     object Bintray {
         const val repo = "maven-artifacts"
