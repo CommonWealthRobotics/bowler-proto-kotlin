@@ -189,18 +189,36 @@ publishing {
             val snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
             credentials {
-                username = findProperty("OSSRH_USERNAME") as String?
-                password = findProperty("OSSRH_PASSWORD") as String?
+                if (System.getenv("OSSRH_USERNAME").isEmpty()) {
+                    println("Assuming publishing credentials are configured through project properties `OSSRH_USERNAME` and `OSSRH_PASSWORD`.")
+                    username = findProperty("OSSRH_USERNAME") as String?
+                    password = findProperty("OSSRH_PASSWORD") as String?
+                } else {
+                    println("Using environment variables `OSSRH_USERNAME` and `OSSRH_PASSWORD` for publishing credentials.")
+                    username = System.getenv("OSSRH_USERNAME")
+                    password = System.getenv("OSSRH_PASSWORD")
+                }
             }
         }
     }
 }
 
 signing {
-    val signingKeyId = findProperty("OSSRH_SIGNING_KEY_ID") as String?
-    val signingKey = findProperty("OSSRH_SIGNING_KEY") as String?
-    val signingPassword = findProperty("OSSRH_SIGNING_PASSWORD") as String?
-    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    if (System.getenv("OSSRH_SIGNING_KEY").isNotEmpty()) {
+        val signingKey = System.getenv("OSSRH_SIGNING_KEY")
+        val signingPassword = System.getenv("OSSRH_SIGNING_PASSWORD")
+        val signingKeyId = System.getenv("OSSRH_SIGNING_KEY_ID")
+        if (signingKeyId.isEmpty()) {
+            println("Using an in-memory OpenPGP key for signing.")
+            useInMemoryPgpKeys(signingKey, signingPassword)
+        } else {
+            println("Using an in-memory OpenPGP subkey for signing.")
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        }
+    } else {
+        println("Assuming signatory credentials are configured through project properties `signing.keyId`, `signing.password`, and `signing.secretKeyRingFile`.")
+    }
+
     sign(publishing.publications[publicationName])
     sign(configurations.archives.get())
 }
