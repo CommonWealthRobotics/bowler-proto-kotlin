@@ -30,7 +30,7 @@ object Versions {
     const val protobufJava = "3.12.4"
     const val grpc = "1.34.0"
     const val grpcKotlin = "1.0.0"
-    const val javaxAnnotationAPI = "1.3.+"
+    const val javaxAnnotationAPI = "1.3.2"
 
     const val gradleWrapper = "6.6.1"
 }
