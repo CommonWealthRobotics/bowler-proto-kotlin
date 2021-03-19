@@ -189,14 +189,14 @@ publishing {
             val snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
             credentials {
-                if (System.getenv("OSSRH_USERNAME")?.isEmpty() == true) {
-                    println("Assuming publishing credentials are configured through project properties `OSSRH_USERNAME` and `OSSRH_PASSWORD`.")
-                    username = findProperty("OSSRH_USERNAME") as String?
-                    password = findProperty("OSSRH_PASSWORD") as String?
-                } else {
+                if (System.getenv("OSSRH_USERNAME")?.isNotEmpty() == true) {
                     println("Using environment variables `OSSRH_USERNAME` and `OSSRH_PASSWORD` for publishing credentials.")
                     username = System.getenv("OSSRH_USERNAME")
                     password = System.getenv("OSSRH_PASSWORD")
+                } else {
+                    println("Assuming publishing credentials are configured through project properties `OSSRH_USERNAME` and `OSSRH_PASSWORD`.")
+                    username = findProperty("OSSRH_USERNAME") as String?
+                    password = findProperty("OSSRH_PASSWORD") as String?
                 }
             }
         }
