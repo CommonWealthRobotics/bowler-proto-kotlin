@@ -141,6 +141,12 @@ task<Jar>("sourcesJar") {
     from(sourceSets.main.get().allSource)
 }
 
+task<Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+    archiveBaseName.set(Metadata.projectName)
+    from(tasks.named("javadoc"))
+}
+
 val publicationName = "bowler-proto-kotlin"
 
 publishing {
@@ -149,6 +155,7 @@ publishing {
             artifactId = Metadata.projectName
             from(components["java"])
             artifact(tasks["sourcesJar"])
+            artifact(tasks["javadocJar"])
             try {
                 artifact(tasks.named("shadowJar"))
             } catch (ex: UnknownTaskException) {
