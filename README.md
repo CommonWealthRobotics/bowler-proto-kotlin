@@ -1,7 +1,8 @@
 # bowler-proto-kotlin
 
+[![Check](https://github.com/CommonWealthRobotics/bowler-proto-kotlin/actions/workflows/check.yml/badge.svg)](https://github.com/CommonWealthRobotics/bowler-proto-kotlin/actions/workflows/check.yml)
 [![license](https://img.shields.io/github/license/commonwealthrobotics/bowler-proto-kotlin)](https://github.com/CommonWealthRobotics/bowler-proto-kotlin/blob/master/LICENSE)
-[![Download](https://api.bintray.com/packages/commonwealthrobotics/maven-artifacts/bowler-proto-kotlin/images/download.svg)](https://bintray.com/commonwealthrobotics/maven-artifacts/bowler-proto-kotlin/_latestVersion)
+![Maven Central](https://img.shields.io/maven-central/v/com.commonwealthrobotics/bowler-proto-kotlin)
 
 This repository contains generated Kotlin code using the protobuf definitions from [bowler-proto](https://github.com/CommonWealthRobotics/bowler-proto).
 
