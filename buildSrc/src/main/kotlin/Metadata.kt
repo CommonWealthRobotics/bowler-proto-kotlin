@@ -23,10 +23,6 @@ object Metadata {
     const val groupId = "com.commonwealthrobotics"
     const val license = "Apache-2.0"
     const val githubRepo = "https://github.com/CommonWealthRobotics/bowler-proto-kotlin"
-
-    object Bintray {
-        const val repo = "maven-artifacts"
-        const val vcsUrl = "https://github.com/CommonWealthRobotics/bowler-proto-kotlin.git"
-        const val githubRepo = "https://github.com/CommonWealthRobotics/bowler-proto-kotlin"
-    }
+    const val scmConnection = "scm:git:git://github.com/CommonWealthRobotics/bowler-proto-kotlin.git"
+    const val developerConnection = "scm:git:ssh://github.com/CommonWealthRobotics/bowler-proto-kotlin.git"
 }

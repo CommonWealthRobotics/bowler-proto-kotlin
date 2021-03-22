@@ -182,8 +182,8 @@ publishing {
                 }
 
                 scm {
-                    connection.set("scm:git:git://github.com/CommonWealthRobotics/bowler-proto-kotlin.git")
-                    developerConnection.set("scm:git:ssh://github.com/CommonWealthRobotics/bowler-proto-kotlin.git")
+                    connection.set(Metadata.scmConnection)
+                    developerConnection.set(Metadata.developerConnection)
                     url.set(Metadata.githubRepo)
                 }
             }
