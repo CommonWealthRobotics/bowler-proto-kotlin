@@ -10,8 +10,8 @@ plugins {
     id("com.diffplug.spotless") version Versions.spotlessPlugin
     kotlin("jvm") version Versions.kotlin
     id("org.jlleitschuh.gradle.ktlint") version Versions.ktlintPlugin
-    id("com.jfrog.bintray") version Versions.bintrayPlugin
     `maven-publish`
+    signing
     java
     id("com.google.protobuf") version Versions.protobufPlugin
 }
@@ -141,7 +141,13 @@ task<Jar>("sourcesJar") {
     from(sourceSets.main.get().allSource)
 }
 
-val publicationName = "publication-${Metadata.projectName}-${name.toLowerCase()}"
+task<Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+    archiveBaseName.set(Metadata.projectName)
+    from(tasks.named("javadoc"))
+}
+
+val publicationName = "bowler-proto-kotlin"
 
 publishing {
     publications {
@@ -149,42 +155,82 @@ publishing {
             artifactId = Metadata.projectName
             from(components["java"])
             artifact(tasks["sourcesJar"])
+            artifact(tasks["javadocJar"])
             try {
                 artifact(tasks.named("shadowJar"))
             } catch (ex: UnknownTaskException) {
             }
+
+            pom {
+                name.set(Metadata.projectName)
+                description.set(Metadata.projectDescription)
+                url.set(Metadata.githubRepo)
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("rbenasutti")
+                        name.set("Ryan Benasutti")
+                        email.set("ryanbenasutti@gmail.com")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/CommonWealthRobotics/bowler-proto-kotlin.git")
+                    developerConnection.set("scm:git:ssh://github.com/CommonWealthRobotics/bowler-proto-kotlin.git")
+                    url.set(Metadata.githubRepo)
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            val releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            val snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+            credentials {
+                if (System.getenv("OSSRH_USERNAME")?.isNotEmpty() == true) {
+                    println("Using environment variables `OSSRH_USERNAME` and `OSSRH_PASSWORD` for publishing credentials.")
+                    username = System.getenv("OSSRH_USERNAME")
+                    password = System.getenv("OSSRH_PASSWORD")
+                } else {
+                    println("Assuming publishing credentials are configured through project properties `OSSRH_USERNAME` and `OSSRH_PASSWORD`.")
+                    username = findProperty("OSSRH_USERNAME") as String?
+                    password = findProperty("OSSRH_PASSWORD") as String?
+                }
+            }
         }
     }
 }
 
-configureBintrayPkg(publicationName)
+signing {
+    if (System.getenv("OSSRH_SIGNING_KEY")?.isNotEmpty() == true) {
+        val signingKey = System.getenv("OSSRH_SIGNING_KEY")
+        val signingPassword = System.getenv("OSSRH_SIGNING_PASSWORD")
+        val signingKeyId = System.getenv("OSSRH_SIGNING_KEY_ID")
+        if (signingKeyId.isEmpty()) {
+            println("Using an in-memory OpenPGP key for signing.")
+            useInMemoryPgpKeys(signingKey, signingPassword)
+        } else {
+            println("Using an in-memory OpenPGP subkey for signing.")
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        }
+    } else {
+        println("Assuming signatory credentials are configured through project properties `signing.keyId`, `signing.password`, and `signing.secretKeyRingFile`.")
+    }
+
+    sign(publishing.publications[publicationName])
+    sign(configurations.archives.get())
+}
 
 tasks.wrapper {
     distributionType = Wrapper.DistributionType.ALL
     gradleVersion = Versions.gradleWrapper
-}
-
-fun Project.configureBintrayPkg(publicationName: String?) {
-    bintray {
-        val bintrayApiUser = properties["bintray.api.user"] ?: System.getenv("BINTRAY_USER")
-        val bintrayApiKey = properties["bintray.api.key"] ?: System.getenv("BINTRAY_API_KEY")
-        user = bintrayApiUser as String?
-        key = bintrayApiKey as String?
-
-        publicationName?.let { setPublications(it) }
-
-        with(pkg) {
-            repo = Metadata.Bintray.repo
-            name = Metadata.projectName
-            userOrg = Metadata.organization
-            publish = true
-            setLicenses(Metadata.license)
-            vcsUrl = Metadata.Bintray.vcsUrl
-            githubRepo = Metadata.Bintray.githubRepo
-            with(version) {
-                name = Versions.projectVersion
-                desc = Metadata.projectDescription
-            }
-        }
-    }
 }

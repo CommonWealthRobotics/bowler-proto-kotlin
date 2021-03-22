@@ -30,9 +30,18 @@ jobs:
 
       - name: Build Artifacts
         run: ./gradlew assemble --info --stacktrace
-
-      - name: Upload
-        run: ./gradlew bintrayUpload --info --stacktrace
         env:
-          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-          BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          OSSRH_SIGNING_KEY_ID: ${{ secrets.OSSRH_SIGNING_KEY_ID }}
+          OSSRH_SIGNING_KEY: ${{ secrets.OSSRH_SIGNING_KEY }}
+          OSSRH_SIGNING_PASSWORD: ${{ secrets.OSSRH_SIGNING_PASSWORD }}
+
+      - name: Publish
+        run: ./gradlew publish --info --stacktrace
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          OSSRH_SIGNING_KEY_ID: ${{ secrets.OSSRH_SIGNING_KEY_ID }}
+          OSSRH_SIGNING_KEY: ${{ secrets.OSSRH_SIGNING_KEY }}
+          OSSRH_SIGNING_PASSWORD: ${{ secrets.OSSRH_SIGNING_PASSWORD }}
