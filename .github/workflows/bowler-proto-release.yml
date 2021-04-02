@@ -34,7 +34,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOWLERBOT_PAT }}
           commit-message:  ${{ format('Bump bowler-proto to {0}.', github.event.client_payload.ref) }}
           title: ${{ format('[AUTO] Bump bowler-proto to {0}.', github.event.client_payload.ref) }}
           body: ${{ format('Updating bowler-proto to {0}.', github.event.client_payload.ref) }}
